@@ -1,0 +1,39 @@
+<! DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Booklist Jyrki Aho</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+	<div>
+		<div class="up"><a href="/booklist">Go back to booklist...</a></div>
+		
+		<h2>Edit book</h2>
+	
+		
+		<form th:object="${book}" th:action="@{/edit}" action="#" method="post">
+			<div class="error" th:text="${errors}"></div>
+			<table>
+				<tr style="visibility:hidden"><td></td><td><input type="hidden" name="id" th:field="*{id}" /></td></tr>
+				<tr><td><label for="lauthor">Author: </label></td>
+				    <td><input type="text" id="lauthor" name="author" th:field="*{author}"/></td></tr>
+				<tr><td><label for="ltitle">Title: </label></td>
+				    <td><input type="text" id="ltitle" name="title" th:field="*{title}"/></td></tr>
+				<tr><td><label for="lisbn">ISBN: </label></td>
+				    <td><input type="text" id="lisbn" name="isbn" th:field="*{isbn}"/></td></tr>
+				<tr><td><label for="lyear">Year: </label></td>
+				    <td><input type="text" id="lyear" name="year" th:field="*{year}"/></td></tr>
+				
+				
+				<tr><td span="2"><input type="submit" value="Save changes"/></td></tr>
+			</table>
+		</form>
+		
+		
+	
+
+	
+	
+</body>
+</html>

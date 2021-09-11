@@ -1,0 +1,46 @@
+<! DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Booklist Jyrki Aho</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+	<div>
+		<h2>Books</h2>
+		
+		<div class="notice" th:text="${notice}"></div>
+		<table>
+			<tr>
+				<th>Author</th>
+				<th>Title</th>
+				<th>ISBN</th>
+				<th>Year</th>
+				<th></th>
+				<th></th>
+			</tr>
+			<tr th:each="book: ${books}">
+				<td th:text="${book.author}"></td>
+				<td th:text="${book.title}"></td>
+				<td th:text="${book.isbn}"></td>
+				<td th:text="${book.year}"></td>
+				<td><a th:href="@{/delete/{id}(id=${book.id})}">Delete</a></td>
+				<td><a th:href="@{/editbook/{id}(id=${book.id})}">Edit</a></td>
+			</tr>
+		</table>
+		<a href = "/addbook">Add Book</a>
+	</div>
+	<!--  div>
+		<h2>Add new friend to list</h2>
+		<form th:action="@{/index}"  method="GET" >
+			<p><label>Name:</label>
+			<input type="text" name="friend" /></p>
+			<p><input type="submit" value="Submit" /></p>
+		</form>
+	</div -->
+	
+
+	
+	
+</body>
+</html>

@@ -2,74 +2,226 @@ package com.aho.bookstore.web;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.aho.bookstore.model.Book;
+import com.aho.bookstore.domain.Book;
+import com.aho.bookstore.domain.BookRepository;
+
+import net.bytebuddy.asm.Advice.This;
 
 @Controller
 public class BookController {
 
-	private ArrayList<Book> bookList = new ArrayList<Book>();
+	@Autowired BookRepository bookRepository;
 	
-	@RequestMapping(value="/index", method=RequestMethod.GET)
-	@ResponseBody
-	public String returnIndex(
-			@RequestParam(name="title", defaultValue="") String title,
+	private String errors = "";
+	private String notice_booklist = "";
+
+	
+	
+	@RequestMapping(value="/booklist", method=RequestMethod.GET)
+	//@ResponseBody
+	public void getBooklist(Model model) {
+		
+		model.addAttribute("notice", this.notice_booklist);
+		model.addAttribute("books", bookRepository.findAll());
+		
+		this.errors = "";
+		this.notice_booklist = "";
+		//return "BookStore";
+	}
+	
+	
+	
+	
+	
+	@RequestMapping(value="/save", method=RequestMethod.POST)
+    public String savePost(@Valid Book book, BindingResult bindingResult){
+    	if (bindingResult.hasErrors()) {
+    		this.errors = "Validation error(s). ";
+    		
+    		if (book != null) {
+    			
+    			List<String> errorList = check_book_data(book.getAuthor(), book.getTitle(), book.getIsbn(), book.getYear() );
+    			
+    			for (int i=0;i<errorList.size(); i++)
+    				this.errors += "\n" + errorList.get(i);
+    			
+    			
+    		} else {
+    			this.errors += "You did not send information!";
+    		}
+    		
+    		
+    		return "redirect:addbook";
+    	}
+    	
+    	this.notice_booklist = "Book succesfully added to database!";
+        bookRepository.save(book);
+        return "redirect:booklist";
+    }  
+	
+	
+	@RequestMapping(value="/save", method=RequestMethod.GET)
+    public String saveGet(@RequestParam(name="title", defaultValue="") String title,
 			@RequestParam(name="author", defaultValue="") String author,
 			@RequestParam(name="year", defaultValue="0") int year,
 			@RequestParam(name="isbn", defaultValue="") String isbn,
-			@RequestParam(name="price", defaultValue="0") double price,
 			Model model ) {
 		
 		if (title.compareTo("") !=0 || author.compareTo("")!=0) {
 			
-			// I list all the errors to remind myself all the 
-			// parameters when doing testing. 
+			List<String> errorList = check_book_data(author, title, isbn, year);
 			
-			ArrayList<String> errors = new ArrayList<String>();
-			if ( !is_text_ok(title)  ) 
-				errors.add("Title valuea are missing!");
-			
-			if ( !is_text_ok(author))
-				errors.add("Author value are missig!");
-			
-			if ( !is_year_ok(year) )
-				errors.add("Year are missing or it has invalid values!");
-			
-			// we could also create isbn checkin but we don't
-			// have to create it to this course.
-			//if ( !is_text_ok(isbn) )
-			//	errors.add("ISBN value are missing!");
-			
-			if ( !is_price_ok(price) )
-				errors.add("Price are missing or it has invalid values!");
-			
-			if ( errors.size()>0 ) {
+			if ( errorList.size()>0 ) {
 				
-				String returnStr = "";
-				for (int i=0;i<errors.size(); i++)
-					returnStr += errors.get(i) + "\n";
-				return returnStr;
-			
+				String returnStr = "Validation error(s). ";
+				for (int i=0;i<errorList.size(); i++)
+					returnStr += "\n" + errorList.get(i);
+				this.errors = returnStr; 
+				
+				//this.errors = "Validation error. Book where not added to database.";;
+				
+			} else {
+				bookRepository.save(new Book(title, author, Integer.valueOf(year), isbn));
+				this.notice_booklist = "Book succesfully added to database!";
+				return "redirect:booklist";
 			}
-			
-			bookList.add(new Book(
-					title, author, year, isbn, price));
-			
 		}
+        
+        return "redirect:addbook";
+    } 
+	
+	
+	
+	
+	@RequestMapping(value="/addbook", method=RequestMethod.GET)
+	//@ResponseBody
+	public void addBook(Model model) {
 		
-		String returnStr = "Booklist\n";
-		for (int i=0; i<bookList.size(); i++)
-			returnStr += bookList.get(i).bookData() + "\n";
+		Book book = new Book();
+		//book.setYear( LocalDate.now().getYear() );
+		
+		model.addAttribute("errors", this.errors );
+		model.addAttribute("book", book );
+		
+		this.errors = "";
+		//return "BookStore";
+	}
+	
+	
+	@RequestMapping(value = "/delete/{id}", method = RequestMethod.GET)
+    public String deleteBook(@PathVariable("id") Long bookId, Model model) {
+    	bookRepository.deleteById(bookId);
+    	
+    	this.notice_booklist = "Book were succesfully deleted from database.";
+        return "redirect:../booklist";
+    }     
+	
+	
+	@RequestMapping(value = "/editbook/{id}", method = RequestMethod.GET)
+    public String editBookGET(@PathVariable("id") Long bookId, Model model) {
+		
+		model.addAttribute("errors", this.errors);
+    	model.addAttribute("book", bookRepository.findById(bookId));
+    	return "editbook";
+    }   
+	
+	
+	@RequestMapping(value = "/edit", method = RequestMethod.POST)
+    public String editBookPOST(@Valid Book book, BindingResult bindingResult){
+		
+		//System.out.println(book);
+    	if (bindingResult.hasErrors()) {
+    		//System.out.println("error occured: " + bindingResult.toString() );
+    		this.errors = "Validation error(s). ";
+    		
+    		if (book != null) {
+    			
+    			List<String> errorList = check_book_data(book.getAuthor(), book.getTitle(), book.getIsbn(), book.getYear() );
+    			
+    			for (int i=0;i<errorList.size(); i++)
+    				this.errors += "\n" + errorList.get(i);
+    			
+    			
+    		} else {
+    			this.errors += "You did not send information!";
+    		}
+    		
+    		
+    		return "redirect:/editbook/" + book.getId().longValue();
+    	}
+    	
+    	if (book == null)
+    		return "redirect:/booklist";
+    	
+    	List<String> errorList = check_book_data(book.getAuthor(), book.getTitle(), book.getIsbn(), book.getYear() );
+		
+    	if (errorList != null && errorList.size()>0) {
+    		this.errors = "Validation error(s). ";
+    		for (int i=0;i<errorList.size(); i++)
+    			this.errors += "\n" + errorList.get(i);
+    		
+    		if (book.getId() != null)
+    			return "redirect:/editbook/" + book.getId().longValue();
+    		
+    		return "redirect:/booklist";
+    	}
+    		
+    		
+    	this.notice_booklist = "Book editing were success!";
+        bookRepository.save(book);
+        return "redirect:booklist";
+    	
+    }   
+	
+	
+	
+	
+	// ---------- DATA CHECKING METHODS -----------------
+	
+	
+	private List<String> check_book_data(String author, String title, String isbn, int year) {
+		return check_book_data(author, title, isbn, Integer.valueOf(year));
+	}
+	
+	private List<String> check_book_data(String author, String title, String isbn, Integer year) {
+		
+		// I list all the errors to remind myself all the 
+		// parameters when doing testing. 
+		ArrayList<String> errorList = new ArrayList<String>();
+		
+		if ( !is_text_ok(author))
+			errorList.add("Author value are missig!");
+		
+		if ( !is_text_ok(title)  ) 
+			errorList.add("Title valuea are missing!");
+		
+		if ( !is_text_ok(isbn) )
+			errorList.add("ISBN value are missing!");
+		
+		if ( !is_year_ok(year) )
+			errorList.add("Year are missing or it has invalid values!");
 		
 		
-		return returnStr;
+		
+		//if ( !is_price_ok(price) )
+		//	errors.add("Price are missing or it has invalid values!");
+		
+		return errorList;
 	}
 	
 	
@@ -78,6 +230,13 @@ public class BookController {
 			return false;
 		
 		return true;
+	}
+	
+	private boolean is_year_ok(Integer year) {
+		if (year == null)
+			return false;
+		
+		return is_year_ok(year.intValue());
 	}
 	
 	private boolean is_year_ok(int year) {
