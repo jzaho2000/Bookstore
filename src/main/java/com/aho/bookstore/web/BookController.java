@@ -1,5 +1,7 @@
 package com.aho.bookstore.web;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,8 +19,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.aho.bookstore.BookstoreApplication;
 import com.aho.bookstore.domain.Book;
 import com.aho.bookstore.domain.BookRepository;
+import com.aho.bookstore.domain.CategoryRepository;
 
 import net.bytebuddy.asm.Advice.This;
 
@@ -26,13 +30,16 @@ import net.bytebuddy.asm.Advice.This;
 public class BookController {
 
 	@Autowired BookRepository bookRepository;
+	@Autowired CategoryRepository categoryRepository;
+	
+	private static final Logger log = LoggerFactory.getLogger(BookstoreApplication.class);
 	
 	private String errors = "";
 	private String notice_booklist = "";
 
 	
 	
-	@RequestMapping(value="/booklist", method=RequestMethod.GET)
+	@RequestMapping(value={"/", "/booklist"})
 	//@ResponseBody
 	public void getBooklist(Model model) {
 		
@@ -41,7 +48,7 @@ public class BookController {
 		
 		this.errors = "";
 		this.notice_booklist = "";
-		//return "BookStore";
+		
 	}
 	
 	
@@ -93,7 +100,7 @@ public class BookController {
 					returnStr += "\n" + errorList.get(i);
 				this.errors = returnStr; 
 				
-				//this.errors = "Validation error. Book where not added to database.";;
+				//this.errors = "Validation error. Book where not added to database.";
 				
 			} else {
 				bookRepository.save(new Book(title, author, Integer.valueOf(year), isbn));
@@ -113,9 +120,11 @@ public class BookController {
 	public void addBook(Model model) {
 		
 		Book book = new Book();
-		//book.setYear( LocalDate.now().getYear() );
 		
 		model.addAttribute("errors", this.errors );
+		model.addAttribute("categories", categoryRepository.findAll());
+		//model.addAttribute("books", bookRepository.findAll());
+		
 		model.addAttribute("book", book );
 		
 		this.errors = "";
@@ -133,9 +142,10 @@ public class BookController {
 	
 	
 	@RequestMapping(value = "/editbook/{id}", method = RequestMethod.GET)
-    public String editBookGET(@PathVariable("id") Long bookId, Model model) {
+    public String editBookGET(@PathVariable("id") Long bookId, Model model) {		
 		
 		model.addAttribute("errors", this.errors);
+		model.addAttribute("categories", categoryRepository.findAll());
     	model.addAttribute("book", bookRepository.findById(bookId));
     	return "editbook";
     }   
@@ -144,9 +154,9 @@ public class BookController {
 	@RequestMapping(value = "/edit", method = RequestMethod.POST)
     public String editBookPOST(@Valid Book book, BindingResult bindingResult){
 		
-		//System.out.println(book);
+		
     	if (bindingResult.hasErrors()) {
-    		//System.out.println("error occured: " + bindingResult.toString() );
+    		
     		this.errors = "Validation error(s). ";
     		
     		if (book != null) {
@@ -161,26 +171,24 @@ public class BookController {
     			this.errors += "You did not send information!";
     		}
     		
-    		
-    		return "redirect:/editbook/" + book.getId().longValue();
+    		return "redirect:/editbook/" + book.getBookid().longValue();
     	}
     	
     	if (book == null)
     		return "redirect:/booklist";
     	
     	List<String> errorList = check_book_data(book.getAuthor(), book.getTitle(), book.getIsbn(), book.getYear() );
-		
+    	
     	if (errorList != null && errorList.size()>0) {
     		this.errors = "Validation error(s). ";
     		for (int i=0;i<errorList.size(); i++)
     			this.errors += "\n" + errorList.get(i);
     		
-    		if (book.getId() != null)
-    			return "redirect:/editbook/" + book.getId().longValue();
+    		if (book.getBookid() != null)
+    			return "redirect:/editbook/" + book.getBookid().longValue();
     		
     		return "redirect:/booklist";
     	}
-    		
     		
     	this.notice_booklist = "Book editing were success!";
         bookRepository.save(book);

@@ -1,0 +1,58 @@
+<! DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Booklist Jyrki Aho</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+	<div>
+		<div><a href="/booklist">Back to booklist...</a></div>
+		
+		<h2>Categories</h2>
+		
+		<div class="add_category">
+			<form th:object="${addcategory}" th:action="@{/addcategory}" action="#" method="post">
+				<div class="error" th:text="${errors}"></div>
+				<div class="notice" th:text="${notice}"></div>
+				<label for="lcategory">Category: </label>
+				<input type="text" id="category" name="category" th:field="*{name}"/>
+				<input type="submit" value="Save"/>
+			</form>
+		</div>
+		
+		<div class="categories_list">
+			<h3>Categories list</h3>
+			
+			<table>
+				<tr>
+					<th>Name</th>
+					<th>Counts</th>
+					<th></th>
+					<!--   th></th -->
+				</tr>
+				<tr th:each="category: ${categories}">
+					<td><span th:text="${category.name}">
+					
+					
+					</span></td>
+					
+					
+					<td th:text="${category.bookList.size}"></td>
+					<td><span th:if="${category.name}=='(empty)'"></span>
+					    <span th:unless="${category.name}=='(empty)'"><a th:href="@{/deletecategory/{id}(id=${category.categoryid})}">Delete</a></span>
+					</td>
+					<td><span th:if="${category.name}=='(empty)'"></span>
+					    <span th:unless="${category.name}=='(empty)'"><a th:href="@{/editcategory/{id}(id=${category.categoryid})}">Edit</a></span>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+
+	
+
+	
+	
+</body>
+</html>

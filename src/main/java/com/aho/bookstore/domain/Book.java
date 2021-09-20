@@ -8,29 +8,33 @@ import javax.persistence.Id;
 //import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 @Entity
 public class Book {
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
-	private Long id;
+	private Long bookid;
 	
-	@NotNull
+	//@NotNull
 	private String title;
 	
-	@NotNull
-	@Size(min=2, max=90)
+	//@NotNull
+	//@Size(min=2, max=90)
 	private String author;
 	
-	@NotNull
+	//@NotNull
 	private String isbn;
 	
 	
-	//private int year;
-	
-	@NotNull
+	//@NotNull
 	private Integer year;
+	
+	@ManyToOne
+	@JoinColumn(name = "categoryid")
+	private Category category;
 
 	
 	//private double price;
@@ -49,14 +53,22 @@ public class Book {
 		this.isbn = isbn;
 		//this.price = price;
 	}
+	
+	public Book(String title, String author, Integer year, String isbn, Category category) {	
+		this.title = title;
+		this.author = author;
+		this.year = year;
+		this.isbn = isbn;
+		this.category = category;
+	}
 
 	
-	public Long getId() {
-		return this.id;
+	public Long getBookid() {
+		return this.bookid;
 	}
 	
-	public void setId(Long id) {
-		this.id = id;
+	public void setBookid(Long id) {
+		this.bookid = id;
 	}
 	
 	
@@ -100,33 +112,25 @@ public class Book {
 	}
 
 
-	//public double getPrice() {
-	//	return price;
-	//}
+	
 
 
-	//public void setPrice(double price) {
-	//	this.price = price;
-	//}
-
-
-	public String bookData() {
-		return  this.id + ", " + 
-				this.title + ", " +
-				this.author + ", " + 
-				this.year.intValue() + ", " + 
-				this.isbn + ", "; // + 
-				//this.price;
+	public Category getCategory() {
+		return category;
 	}
+
+
+	public void setCategory(Category category) {
+		this.category = category;
+	}
+
 
 
 	@Override
 	public String toString() {
-		//return "Book [id=" + id + ", title=" + title + ", author=" + author + ", year=" + year + ", isbn=" + isbn
-		//		+ ", price=" + price + "]";
 		
-		return "Book [id=" + id + ", title=" + title + ", author=" + author + ", year=" + year.intValue() + ", isbn=" + isbn
-				+ "]";
+		return "Book [id=" + bookid + ", title=" + title + ", author=" + author + ", year=" + year.intValue() + 
+				", isbn=" + isbn + ", category=" + (this.category == null ? "NULL" : this.category.getName()) + "]";
 	}
 	
 	

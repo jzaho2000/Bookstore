@@ -1,0 +1,25 @@
+<! DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Booklist Jyrki Aho</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+	<div>
+		<div class="up"><a href="/categorylist">Go back to category list...</a></div>
+		
+		<h2>Edit Category</h2>
+	
+		
+		<form th:object="${category}" th:action="@{/editcat}" action="#" method="post">
+			<div class="error" th:text="${errors}"></div>
+				<input type="hidden" name="id" th:field="*{categoryid}" />
+				<label for="lname">Name: </label>
+				<input type="text" id="lname" name="name" th:field="*{name}"/>
+				<input type="submit" value="Save changes"/>
+		</form>
+		
+	</div>
+</body>
+</html>

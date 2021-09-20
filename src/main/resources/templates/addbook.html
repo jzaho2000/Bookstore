@@ -15,6 +15,12 @@
 		<form th:object="${book}" th:action="@{/save}" action="#" method="post">
 			<div class="error" th:text="${errors}"></div>
 			<table>
+				<tr style="visibility:hidden"><td></td><td><input type="hidden" name="bookid" th:field="*{bookid}" /></td></tr>
+				<tr><td><label for="category">Category: </label></td>
+				    <td><select id="category" th:field="*{category}">
+				    	   <option th:each="category : ${categories}"  th:value="${category.categoryid}" th:text="${category.name}"></option>
+				    
+				    </select></td></tr>
 				<tr><td><label for="lauthor">Author: </label></td>
 				    <td><input type="text" id="lauthor" name="author" th:field="*{author}"/></td></tr>
 				<tr><td><label for="ltitle">Title: </label></td>
