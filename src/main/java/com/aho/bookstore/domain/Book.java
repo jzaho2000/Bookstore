@@ -1,15 +1,18 @@
 package com.aho.bookstore.domain;
+
+
+
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-
-
+//import javax.persistence.JoinColumn;
+//import javax.persistence.ManyToOne;
 //import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+//import javax.validation.constraints.Size;
+
 
 @Entity
 public class Book {
@@ -18,27 +21,28 @@ public class Book {
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long bookid;
 	
-	//@NotNull
+	@NotNull
 	private String title;
 	
-	//@NotNull
+	@NotNull
 	//@Size(min=2, max=90)
 	private String author;
 	
-	//@NotNull
+	@NotNull
 	private String isbn;
 	
 	
 	//@NotNull
 	private Integer year;
 	
-	@ManyToOne
-	@JoinColumn(name = "categoryid")
-	private Category category;
+	//@ManyToOne
+	//@JoinColumn(name = "categoryid")
+	//private Category category;
 
 	
 	//private double price;
-	
+	//@NotNull
+	private Long categoryid;
 
 	
 	public Book() {
@@ -54,6 +58,17 @@ public class Book {
 		//this.price = price;
 	}
 	
+	public Book(String title, String author, Integer year, String isbn, long categoryid) {	
+		this.title = title;
+		this.author = author;
+		this.year = year;
+		this.isbn = isbn;
+		this.categoryid = categoryid;
+		//this.price = price;
+	}
+	
+	
+	/*
 	public Book(String title, String author, Integer year, String isbn, Category category) {	
 		this.title = title;
 		this.author = author;
@@ -61,6 +76,7 @@ public class Book {
 		this.isbn = isbn;
 		this.category = category;
 	}
+	*/
 
 	
 	public Long getBookid() {
@@ -114,7 +130,7 @@ public class Book {
 
 	
 
-
+	/*
 	public Category getCategory() {
 		return category;
 	}
@@ -123,15 +139,28 @@ public class Book {
 	public void setCategory(Category category) {
 		this.category = category;
 	}
+	*/
+
+	public Long getCategoryid() {
+		return categoryid;
+	}
 
 
+	public void setCategoryid(Long categoryid) {
+		this.categoryid = categoryid;
+	}
+	
 
 	@Override
 	public String toString() {
 		
 		return "Book [id=" + bookid + ", title=" + title + ", author=" + author + ", year=" + year.intValue() + 
-				", isbn=" + isbn + ", category=" + (this.category == null ? "NULL" : this.category.getName()) + "]";
+				", isbn=" + isbn + "]";
+				//", category=" + (this.category == null ? "NULL" : this.category.getName()) + "]";
 	}
+
+
+
 	
 	
 	

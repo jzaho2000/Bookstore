@@ -1,7 +1,7 @@
 package com.aho.bookstore.web;
 
-import java.util.List;
-import java.util.Optional;
+//import java.util.List;
+//import java.util.Optional;
 
 import javax.validation.Valid;
 
@@ -13,15 +13,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.aho.bookstore.domain.Book;
-import com.aho.bookstore.domain.BookRepository;
 import com.aho.bookstore.domain.Category;
-import com.aho.bookstore.domain.CategoryRepository;
+import com.aho.bookstore.domain.CategoryDAO;
+
+
+
+
 
 @Controller
 public class CategoryController {
-	@Autowired BookRepository bookRepository;
-	@Autowired CategoryRepository categoryRepository;
+	//@Autowired BookDAO bookDAO;
+	@Autowired CategoryDAO categoryDAO;
 	
 	private String errors = "";
 	private String notice = "";
@@ -33,7 +35,7 @@ public class CategoryController {
 		model.addAttribute("notice", this.notice);
 		model.addAttribute("errors", this.errors);
 		model.addAttribute("addcategory", new Category());
-		model.addAttribute("categories", categoryRepository.findAll());
+		model.addAttribute("categories", categoryDAO.findAll());
 		
 		this.errors = "";
 		this.notice = "";
@@ -53,7 +55,7 @@ public class CategoryController {
     	}
     	
     	this.notice = "New category succesfully added to database!";
-        categoryRepository.save(category);
+        categoryDAO.save(category);
         return "redirect:categorylist";
     }  
 	
@@ -66,31 +68,14 @@ public class CategoryController {
 			return "redirect:../categorylist";
 		}
 		
-		Optional<Category> list= categoryRepository.findById(categoryId);
-		if ( list.isEmpty() == false && list.get() != null && list.get().getName().equals("(empty)") ) {
+		Category category = categoryDAO.findOne(categoryId); 
+		if ( category == null || category.getName().equals("(empty)") ) {
 			this.errors = "Validation error!";
 			return "redirect:../categorylist";
 		}
 		
 		
-		
-		List<Book> blist = list.get().getBookList();
-		if (blist != null && blist.size()>0) {
-			
-			Category c = categoryRepository.findByName("(empty)").get(0);
-			Book b;
-			
-			for (int i=0; i<blist.size(); i++) {
-				b = blist.get(i);
-				b.setCategory(c);
-				c.getBookList().add(b);
-			}
-			
-			
-		}
-		
-		
-    	categoryRepository.deleteById(categoryId);
+    	categoryDAO.deleteById(categoryId);
     	
     	this.notice = "Category were succesfully deleted from database.";
         return "redirect:../categorylist";
@@ -100,15 +85,15 @@ public class CategoryController {
 	@RequestMapping(value = "/editcategory/{id}", method = RequestMethod.GET)
     public String editBookGET(@PathVariable("id") Long categoryId, Model model) {
 		
-		Optional<Category> list= categoryRepository.findById(categoryId);
+		Category category = categoryDAO.findOne(categoryId); 
 		
-		if ( list.isEmpty() == false && list.get() != null && list.get().getName().equals("(empty)") ) {
+		if ( category == null || category.getName().equals("(empty)") ) {
 			this.errors = "Validation error!";
 			return "redirect:../categorylist";
 		}
 		
 		model.addAttribute("errors", this.errors);
-    	model.addAttribute("category", categoryRepository.findById(categoryId));
+    	model.addAttribute("category", category);
     	return "editcategory";
     }   
 
@@ -132,7 +117,7 @@ public class CategoryController {
     		
     	}
     	
-    	Category c = categoryRepository.findByName("(empty)").get(0);
+    	Category c = categoryDAO.findByName("(empty)");
 		if ( category.getCategoryid().longValue() == c.getCategoryid().longValue() ) {
 			this.errors = "Validation error!";
 			return "redirect:../categorylist";
@@ -140,7 +125,7 @@ public class CategoryController {
 		
 		
 		
-		categoryRepository.save(category);
+		categoryDAO.save(category);
     	this.notice = "Category editing were success!";
         return "redirect:categorylist";
     	

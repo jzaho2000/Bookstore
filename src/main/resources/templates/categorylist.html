@@ -38,7 +38,9 @@
 					</span></td>
 					
 					
-					<td th:text="${category.bookList.size}"></td>
+					<!--  td th:text="${category.booklist.size}"></td -->
+					<td></td>
+					
 					<td><span th:if="${category.name}=='(empty)'"></span>
 					    <span th:unless="${category.name}=='(empty)'"><a th:href="@{/deletecategory/{id}(id=${category.categoryid})}">Delete</a></span>
 					</td>

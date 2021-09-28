@@ -17,7 +17,7 @@
 			<table>
 				<tr style="visibility:hidden"><td></td><td><input type="hidden" name="bookid" th:field="*{bookid}" /></td></tr>
 				<tr><td><label for="category">Category: </label></td>
-				    <td><select id="category" th:field="*{category}">
+				    <td><select id="category" th:field="*{categoryid}">
 				    	   <option th:each="category : ${categories}"  th:value="${category.categoryid}" th:text="${category.name}"></option>
 				    
 				    </select></td></tr>

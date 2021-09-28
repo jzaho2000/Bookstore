@@ -19,7 +19,7 @@
 				<tr>
 					<td><label for="category">Category: </label></td>
 				    <td>
-				    	<select id="category"  th:field="*{category}">
+				    	<select id="category"  th:field="*{categoryid}">
 				    	   <option th:each="i : ${categories}"  th:value="${i.categoryid}" th:text="${i.name}" ></option>
 				    	</select>
 				    	<!--  input type="text" name="category" th:field="*{category}" / -->

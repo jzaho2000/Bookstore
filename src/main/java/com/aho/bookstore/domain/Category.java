@@ -1,30 +1,38 @@
 package com.aho.bookstore.domain;
 
-import java.util.ArrayList;
+
+//import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+
 //import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import javax.persistence.OneToMany;
+//import javax.validation.constraints.NotNull;
+//import javax.validation.constraints.Size;
+
+//import org.springframework.boot.autoconfigure.domain.EntityScan;
+
+//import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+//import javax.persistence.JoinColumn;
+//import javax.persistence.OneToMany;
+//import javax.persistence.OneToMany;
 
 @Entity
 public class Category {
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	//@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long categoryid;
 	
 	
 	private String name;
 	
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "category")
-	private List<Book> bookList;
+	//@OneToMany(cascade = CascadeType.ALL, mappedBy = "category")
+	//private List<Book> booklist;
+	
+
 	
 	public Category() { }
 	
@@ -58,15 +66,17 @@ public class Category {
 		this.name = name;
 	}
 
-
-	public List<Book> getBookList() {
-		return bookList;
+	/*
+	public List<Book> getBooklist() {
+		return this.booklist;
 	}
 
 
-	public void setBookList(List<Book> bookList) {
-		this.bookList = bookList;
+	public void setBooklist(List<Book> booklist) {
+		this.booklist = booklist;
 	}
+	*/
+	
 
 
 	@Override
@@ -80,3 +90,4 @@ public class Category {
 	
 	
 }
+

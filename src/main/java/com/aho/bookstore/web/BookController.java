@@ -1,5 +1,6 @@
 package com.aho.bookstore.web;
 
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.time.LocalDate;
@@ -21,18 +22,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.aho.bookstore.BookstoreApplication;
 import com.aho.bookstore.domain.Book;
-import com.aho.bookstore.domain.BookRepository;
-import com.aho.bookstore.domain.CategoryRepository;
+import com.aho.bookstore.domain.BookDAO;
+import com.aho.bookstore.domain.CategoryDAO;
 
-import net.bytebuddy.asm.Advice.This;
+
 
 @Controller
 public class BookController {
 
-	@Autowired BookRepository bookRepository;
-	@Autowired CategoryRepository categoryRepository;
+	@Autowired BookDAO bookDAO;
+	@Autowired CategoryDAO categoryDAO;
 	
-	private static final Logger log = LoggerFactory.getLogger(BookstoreApplication.class);
+private static final Logger log = LoggerFactory.getLogger(BookstoreApplication.class);
 	
 	private String errors = "";
 	private String notice_booklist = "";
@@ -44,7 +45,7 @@ public class BookController {
 	public void getBooklist(Model model) {
 		
 		model.addAttribute("notice", this.notice_booklist);
-		model.addAttribute("books", bookRepository.findAll());
+		model.addAttribute("books", bookDAO.findAll());
 		
 		this.errors = "";
 		this.notice_booklist = "";
@@ -55,6 +56,7 @@ public class BookController {
 	
 	
 	
+
 	@RequestMapping(value="/save", method=RequestMethod.POST)
     public String savePost(@Valid Book book, BindingResult bindingResult){
     	if (bindingResult.hasErrors()) {
@@ -63,6 +65,7 @@ public class BookController {
     		if (book != null) {
     			
     			List<String> errorList = check_book_data(book.getAuthor(), book.getTitle(), book.getIsbn(), book.getYear() );
+    			
     			
     			for (int i=0;i<errorList.size(); i++)
     				this.errors += "\n" + errorList.get(i);
@@ -77,16 +80,17 @@ public class BookController {
     	}
     	
     	this.notice_booklist = "Book succesfully added to database!";
-        bookRepository.save(book);
+        bookDAO.save(book);
         return "redirect:booklist";
     }  
 	
-	
+	/*
 	@RequestMapping(value="/save", method=RequestMethod.GET)
     public String saveGet(@RequestParam(name="title", defaultValue="") String title,
 			@RequestParam(name="author", defaultValue="") String author,
 			@RequestParam(name="year", defaultValue="0") int year,
 			@RequestParam(name="isbn", defaultValue="") String isbn,
+			@RequestParam(name="categoryid", defaultValue="0") long categoryid,
 			Model model ) {
 		
 		if (title.compareTo("") !=0 || author.compareTo("")!=0) {
@@ -103,7 +107,7 @@ public class BookController {
 				//this.errors = "Validation error. Book where not added to database.";
 				
 			} else {
-				bookRepository.save(new Book(title, author, Integer.valueOf(year), isbn));
+				bookDAO.save(new Book(title, author, Integer.valueOf(year), isbn, categoryid));
 				this.notice_booklist = "Book succesfully added to database!";
 				return "redirect:booklist";
 			}
@@ -111,9 +115,10 @@ public class BookController {
         
         return "redirect:addbook";
     } 
+    */
 	
 	
-	
+
 	
 	@RequestMapping(value="/addbook", method=RequestMethod.GET)
 	//@ResponseBody
@@ -122,9 +127,7 @@ public class BookController {
 		Book book = new Book();
 		
 		model.addAttribute("errors", this.errors );
-		model.addAttribute("categories", categoryRepository.findAll());
-		//model.addAttribute("books", bookRepository.findAll());
-		
+		model.addAttribute("categories", categoryDAO.findAll());
 		model.addAttribute("book", book );
 		
 		this.errors = "";
@@ -134,7 +137,13 @@ public class BookController {
 	
 	@RequestMapping(value = "/delete/{id}", method = RequestMethod.GET)
     public String deleteBook(@PathVariable("id") Long bookId, Model model) {
-    	bookRepository.deleteById(bookId);
+		
+		if (bookId == null) {
+			this.errors = "There were error when trying to delete book from database.";
+	        return "redirect:../booklist";
+		}
+		
+    	bookDAO.deleteById(bookId);
     	
     	this.notice_booklist = "Book were succesfully deleted from database.";
         return "redirect:../booklist";
@@ -142,15 +151,21 @@ public class BookController {
 	
 	
 	@RequestMapping(value = "/editbook/{id}", method = RequestMethod.GET)
-    public String editBookGET(@PathVariable("id") Long bookId, Model model) {		
+    public String editBookGET(@PathVariable("id") Long bookId, Model model) {
+		
+		if (bookId == null) {
+			this.errors = "There were error when trying to find book from database.";
+	        return "redirect:../booklist";
+		}
+		
 		
 		model.addAttribute("errors", this.errors);
-		model.addAttribute("categories", categoryRepository.findAll());
-    	model.addAttribute("book", bookRepository.findById(bookId));
+		model.addAttribute("categories", categoryDAO.findAll());
+    	model.addAttribute("book", bookDAO.findOne(bookId));
     	return "editbook";
-    }   
+    }  
 	
-	
+
 	@RequestMapping(value = "/edit", method = RequestMethod.POST)
     public String editBookPOST(@Valid Book book, BindingResult bindingResult){
 		
@@ -191,7 +206,7 @@ public class BookController {
     	}
     		
     	this.notice_booklist = "Book editing were success!";
-        bookRepository.save(book);
+        bookDAO.save(book);
         return "redirect:booklist";
     	
     }   
@@ -199,6 +214,7 @@ public class BookController {
 	
 	
 	
+
 	// ---------- DATA CHECKING METHODS -----------------
 	
 	
@@ -269,5 +285,6 @@ public class BookController {
 		
 		return true;
 	}
+	
 	
 }
