@@ -1,5 +1,5 @@
 <! DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
 <head>
 <title>Booklist Jyrki Aho</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -7,11 +7,16 @@
 </head>
 <body>
 	<div>
+		<div>
+			<form th:action="@{/logout}" method="post">
+				<input type="submit" value="Sign Out" class="btn btn-sm btn-danger"/>
+			</form>
+		</div>
 		<div><a href="/booklist">Back to booklist...</a></div>
 		
 		<h2>Categories</h2>
 		
-		<div class="add_category">
+		<div sec:authorize="hasAuthority('ADMIN')" class="add_category">
 			<form th:object="${addcategory}" th:action="@{/addcategory}" action="#" method="post">
 				<div class="error" th:text="${errors}"></div>
 				<div class="notice" th:text="${notice}"></div>
@@ -28,7 +33,7 @@
 				<tr>
 					<th>Name</th>
 					<th>Counts</th>
-					<th></th>
+					<th sec:authorize="hasAuthority('ADMIN')"></th>
 					<!--   th></th -->
 				</tr>
 				<tr th:each="category: ${categories}">
@@ -42,10 +47,10 @@
 					<td></td>
 					
 					<td><span th:if="${category.name}=='(empty)'"></span>
-					    <span th:unless="${category.name}=='(empty)'"><a th:href="@{/deletecategory/{id}(id=${category.categoryid})}">Delete</a></span>
+					    <span th:unless="${category.name}=='(empty)'"><a sec:authorize="hasAuthority('ADMIN')" th:href="@{/deletecategory/{id}(id=${category.categoryid})}">Delete</a></span>
 					</td>
 					<td><span th:if="${category.name}=='(empty)'"></span>
-					    <span th:unless="${category.name}=='(empty)'"><a th:href="@{/editcategory/{id}(id=${category.categoryid})}">Edit</a></span>
+					    <span th:unless="${category.name}=='(empty)'"><a sec:authorize="hasAuthority('ADMIN')" th:href="@{/editcategory/{id}(id=${category.categoryid})}">Edit</a></span>
 					</td>
 				</tr>
 			</table>

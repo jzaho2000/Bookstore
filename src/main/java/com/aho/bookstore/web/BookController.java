@@ -10,6 +10,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -38,7 +39,10 @@ private static final Logger log = LoggerFactory.getLogger(BookstoreApplication.c
 	private String errors = "";
 	private String notice_booklist = "";
 
-	
+	 @RequestMapping(value="/login")
+	 public String login() {	
+	        return "login";
+	}	
 	
 	@RequestMapping(value={"/", "/booklist"})
 	//@ResponseBody
@@ -58,6 +62,7 @@ private static final Logger log = LoggerFactory.getLogger(BookstoreApplication.c
 	
 
 	@RequestMapping(value="/save", method=RequestMethod.POST)
+	@PreAuthorize("hasAuthority('ADMIN')")
     public String savePost(@Valid Book book, BindingResult bindingResult){
     	if (bindingResult.hasErrors()) {
     		this.errors = "Validation error(s). ";
@@ -121,7 +126,7 @@ private static final Logger log = LoggerFactory.getLogger(BookstoreApplication.c
 
 	
 	@RequestMapping(value="/addbook", method=RequestMethod.GET)
-	//@ResponseBody
+	@PreAuthorize("hasAuthority('ADMIN')")
 	public void addBook(Model model) {
 		
 		Book book = new Book();
@@ -136,6 +141,7 @@ private static final Logger log = LoggerFactory.getLogger(BookstoreApplication.c
 	
 	
 	@RequestMapping(value = "/delete/{id}", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('ADMIN')")
     public String deleteBook(@PathVariable("id") Long bookId, Model model) {
 		
 		if (bookId == null) {
@@ -151,6 +157,7 @@ private static final Logger log = LoggerFactory.getLogger(BookstoreApplication.c
 	
 	
 	@RequestMapping(value = "/editbook/{id}", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('ADMIN')")
     public String editBookGET(@PathVariable("id") Long bookId, Model model) {
 		
 		if (bookId == null) {
@@ -167,6 +174,7 @@ private static final Logger log = LoggerFactory.getLogger(BookstoreApplication.c
 	
 
 	@RequestMapping(value = "/edit", method = RequestMethod.POST)
+	@PreAuthorize("hasAuthority('ADMIN')")
     public String editBookPOST(@Valid Book book, BindingResult bindingResult){
 		
 		

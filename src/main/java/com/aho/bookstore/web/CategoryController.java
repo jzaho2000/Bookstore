@@ -6,6 +6,7 @@ package com.aho.bookstore.web;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -43,6 +44,7 @@ public class CategoryController {
 	
 	
 	@RequestMapping(value="/addcategory", method=RequestMethod.POST)
+	@PreAuthorize("hasAuthority('ADMIN')")
     public String savePost(@Valid Category category, BindingResult bindingResult){
     	if (bindingResult.hasErrors()) {
     		this.errors = "Validation error(s). ";
@@ -61,6 +63,7 @@ public class CategoryController {
 	
 	
 	@RequestMapping(value = "/deletecategory/{id}", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('ADMIN')")
     public String deleteBook(@PathVariable("id") Long categoryId, Model model) {
 		
 		if (categoryId == null) {
@@ -83,6 +86,7 @@ public class CategoryController {
 	
 
 	@RequestMapping(value = "/editcategory/{id}", method = RequestMethod.GET)
+	@PreAuthorize("hasAuthority('ADMIN')")
     public String editBookGET(@PathVariable("id") Long categoryId, Model model) {
 		
 		Category category = categoryDAO.findOne(categoryId); 
@@ -98,6 +102,7 @@ public class CategoryController {
     }   
 
 	@RequestMapping(value = "/editcat", method = RequestMethod.POST)
+	@PreAuthorize("hasAuthority('ADMIN')")
     public String editBookPOST(@Valid Category category, BindingResult bindingResult){
 		
 		
